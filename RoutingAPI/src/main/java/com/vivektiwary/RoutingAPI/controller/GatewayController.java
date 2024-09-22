@@ -33,6 +33,7 @@ public class GatewayController {
       String serverAddress = nextServer.getServerAddress();
 
       nextServer.incrementRequestCount();
+      System.out.println("Current request count: " + nextServer.getRequestCount());
       Map<String, Object> response = restTemplate.postForObject(serverAddress, item, Map.class);
       nextServer.decrementRequestCount();
 
@@ -44,18 +45,13 @@ public class GatewayController {
 
   @PostMapping("/register")
   public String registerServer(@RequestBody String serverAddress) {
-    serverRegistry.registerServer(
-        ServerInfo.builder()
-            .serverAddress(serverAddress)
-            .status(Status.UP)
-            .lastUpdatedAt(System.currentTimeMillis())
-            .build());
+    serverRegistry.registerServer(serverAddress);
     return "Server registered at: " + serverAddress;
   }
 
   @PostMapping("/deregister")
   public String deregisterServer(@RequestBody String serverAddress) {
-    serverRegistry.deregisterServer(ServerInfo.builder().serverAddress(serverAddress).build());
+    serverRegistry.deregisterServer(serverAddress);
     return "Server deregistered at: " + serverAddress;
   }
 
