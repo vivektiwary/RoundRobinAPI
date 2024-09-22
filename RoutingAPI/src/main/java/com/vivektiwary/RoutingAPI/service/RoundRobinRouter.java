@@ -4,6 +4,7 @@ import com.vivektiwary.RoutingAPI.model.ServerInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -17,11 +18,16 @@ public class RoundRobinRouter {
   }
 
   public ServerInfo getNextServer() {
-    ServerInfo[] servers = serverRegistry.getUpServers().toArray(new ServerInfo[0]);
-    if (servers.length == 0) {
+    List<ServerInfo> servers = serverRegistry.getUpServers().stream().toList();
+
+    if (servers.isEmpty()) {
+      System.out.println("all servers == " + serverRegistry.getServers().stream().toList());
       throw new IllegalStateException("No healthy upstreams available");
     }
-    int index = currentIndex.getAndIncrement() % servers.length;
-    return servers[index];
+
+    System.out.println("up servers === " + servers);
+    System.out.println("currentIndex === " + currentIndex);
+    int index = currentIndex.getAndUpdate(i -> (i + 1) % servers.size());
+    return servers.get(index);
   }
 }

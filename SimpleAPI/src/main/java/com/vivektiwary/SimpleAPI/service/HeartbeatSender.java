@@ -24,11 +24,8 @@ public class HeartbeatSender {
   @Scheduled(fixedRateString = "${routing-app.gateway.heartbeat-interval}")
   public void sendHeartbeat() {
     String serverAddress = serverHost + ":" + serverPort;
-
-    System.out.println("Sending heartbeat..." + gatewayUrl + heartbeatPath);
     try {
       restTemplate.postForObject(gatewayUrl + heartbeatPath, serverAddress, String.class);
-      System.out.println("Heartbeat sent successfully");
     } catch (Exception e) {
       System.err.println("Failed to send heartbeat: " + e.getMessage());
     }

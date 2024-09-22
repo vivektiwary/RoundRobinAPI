@@ -17,7 +17,7 @@ public class ServerInfo {
   private String serverAddress;
   private Status status;
   private Long lastUpdatedAt;
-  private AtomicInteger requestCount;
+  private AtomicInteger requestCount = new AtomicInteger(0);
 
   @Override
   public boolean equals(Object o) {
@@ -38,5 +38,13 @@ public class ServerInfo {
 
   public void decrementRequestCount() {
     requestCount.decrementAndGet();
+  }
+
+  public AtomicInteger getRequestCount() {
+    return requestCount;
+  }
+
+  public String toString() {
+    return "ServerInfo(serverAddress=" + this.getServerAddress() + ", status=" + this.getStatus() + ", lastUpdatedAt=" + this.getLastUpdatedAt() + ", requestCount=" + this.getRequestCount() + ")";
   }
 }

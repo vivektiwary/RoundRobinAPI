@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Random;
 
 @RestController
-@RequestMapping("/api")
 public class SimpleController {
 
   private final Random random = new Random();
@@ -16,7 +15,7 @@ public class SimpleController {
   @PostMapping()
   public Map<String, Object> echoItem(@RequestBody Map<String, Object> item) {
     System.out.println("Received request: ");
-    introduceRandomDelay();
+//    introduceRandomDelay();
     return item;
   }
 

@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @RestController
 public class GatewayController {
@@ -18,6 +21,8 @@ public class GatewayController {
   private final RoundRobinRouter roundRobinRouter;
   private final RestTemplate restTemplate;
   private final ServerRegistry serverRegistry;
+
+  private final Lock lock = new ReentrantLock();
 
   @Autowired
   public GatewayController(RoundRobinRouter roundRobinRouter, ServerRegistry serverRegistry) {
@@ -28,18 +33,24 @@ public class GatewayController {
 
   @PostMapping()
   public Map<String, Object> echoItem(@RequestBody Map<String, Object> item) {
+    lock.lock();
+
     try {
       ServerInfo nextServer = roundRobinRouter.getNextServer();
       String serverAddress = nextServer.getServerAddress();
 
+      Map<String, Object> response;
       nextServer.incrementRequestCount();
-      System.out.println("Current request count: " + nextServer.getRequestCount());
-      Map<String, Object> response = restTemplate.postForObject(serverAddress, item, Map.class);
+      response = restTemplate.postForObject(serverAddress, item, Map.class);
       nextServer.decrementRequestCount();
 
       return response;
     } catch (Exception e) {
+      Arrays.stream(e.getStackTrace()).forEach(System.out::println);
+      System.out.println("the error is ======> " + e.getMessage());
       return Map.of("error", e.getMessage());
+    } finally {
+      lock.unlock();
     }
   }
 
